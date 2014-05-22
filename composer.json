@@ -11,7 +11,7 @@
 	],
 	"homepage" : "http://mouf-php/packages/mouf/html.utils.weblibrarymanager.component-installer",
 	"support": {
-		"issues" : "https://github.com/thecodingmachine/html.utils.weblibrarymanager.component-installer/issues",
+		"issues" : "https://github.com/thecodingmachine/html.utils.weblibrarymanager.component-installer/issues"
 	},
 	"type" : "composer-plugin",
 	"license" : "MIT",
