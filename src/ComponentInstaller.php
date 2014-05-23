@@ -4,6 +4,9 @@ namespace Mouf\Html\Utils\WebLibraryManager\ComponentInstaller;
 use Composer\Package\PackageInterface;
 use Composer\Installer\LibraryInstaller;
 use Composer\Repository\InstalledRepositoryInterface;
+use Mouf\MoufManager;
+use Mouf\Html\Utils\WebLibraryManager\WebLibraryInstaller;
+use Composer\Config;
 
 /**
  * This Composer installer is in charge of the installation of component files in the Mouf framework.
@@ -18,6 +21,7 @@ class ComponentInstaller extends LibraryInstaller
 	public function update(InstalledRepositoryInterface $repo, PackageInterface $initial, PackageInterface $target)
 	{
 		parent::update($repo, $initial, $target);
+		$this->installUpdate($repo, $target);
 	}
 	
 	/**
@@ -26,6 +30,7 @@ class ComponentInstaller extends LibraryInstaller
 	public function install(InstalledRepositoryInterface $repo, PackageInterface $package)
 	{
 		parent::install($repo, $package);
+		$this->installUpdate($repo, $package);
 	}
 	
 	/**
@@ -34,6 +39,31 @@ class ComponentInstaller extends LibraryInstaller
 	public function uninstall(InstalledRepositoryInterface $repo, PackageInterface $package)
 	{
 		parent::uninstall($repo, $package);
+		
+		if (!file_exists(__DIR__.'/../../../../mouf/Mouf.php')) {
+			continue;
+		}
+		require_once(__DIR__.'/../../../../mouf/Mouf.php');
+		
+		$moufManager = MoufManager::getMoufManager();
+		
+		echo 'CHECKING FOR '."component.".$package->getName();
+		if ($moufManager->has("component.".$package->getName())) {
+			echo 'WE REMOVE '."component.".$package->getName();
+			$moufManager->removeComponent("component.".$package->getName());
+		}
+		$moufManager->rewriteMouf();
+		echo 'FINISHED REWRITE '."component.".$package->getName();
+	}
+	
+	protected function installUpdate(InstalledRepositoryInterface $repo, PackageInterface $package) {
+		if (!file_exists(__DIR__.'/../../../../mouf/Mouf.php')) {
+			continue;
+		}
+		require_once(__DIR__.'/../../../../mouf/Mouf.php');
+		
+		$moufManager = MoufManager::getMoufManager();
+		self::installComponent($package, $this->composer->getConfig(), $moufManager);
 	}
 
     /**
@@ -42,5 +72,60 @@ class ComponentInstaller extends LibraryInstaller
     public function supports($packageType)
     {
         return 'component' === $packageType;
+    }
+    
+    /**
+     * 
+     * @param PackageInterface $package
+     * @param Config $config
+     * @param MoufManager $moufManager
+     */
+    public static function installComponent(PackageInterface $package, Config $config, $moufManager) {
+    	if (!$moufManager->has('defaultWebLibraryManager')) {
+    		return;
+    	}
+    	
+    	$packageName = explode('/', $package->getName())[1];
+    		
+    	if (!$moufManager->has("component.".$package->getName())) {
+    		$extra = $package->getExtra();
+    			
+    		$targetDir = $config->get('component-dir');
+    		$baseUrl = $config->get('component-baseurl');
+    			
+    		if (!$targetDir) {
+    			$targetDir = 'components';
+    		}
+    		if (!$baseUrl) {
+    			$baseUrl = $targetDir;
+    		}
+    			
+    		$targetDir = trim($targetDir,'/\\').'/';
+    		$baseUrl = trim($baseUrl,'/\\').'/';
+    	
+    		$scripts = [];
+    		if (isset($extra['component']['scripts'])) {
+    			$scripts = array_map(function($script) use ($packageName, $baseUrl) {
+    				return $baseUrl.$packageName.'/'.$script;
+    			}, $extra['component']['scripts']);
+    		}
+    	
+    		$css = [];
+    		if (isset($extra['component']['styles'])) {
+    			$css = array_map(function($script) use ($packageName, $baseUrl) {
+    				return $baseUrl.$packageName.'/'.$script;
+    			}, $extra['component']['styles']);
+    		}
+    	
+    		$deps = [];
+    		/*if (isset($extra['component']['deps'])) {
+    			$deps = array_map(function($script) {
+    				return "component.".$script;
+    			}, $extra['component']['css']);
+    		}*/
+    	
+    		WebLibraryInstaller::installLibrary("component.".$packageName, $scripts, $css, $deps, true, $moufManager);
+    	}
+    	$moufManager->rewriteMouf();	 
     }
 }
