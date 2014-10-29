@@ -21,18 +21,16 @@ class ComponentInstaller extends LibraryInstaller
 	public function update(InstalledRepositoryInterface $repo, PackageInterface $initial, PackageInterface $target)
 	{
 		parent::update($repo, $initial, $target);
-		$this->installUpdate($repo, $target);
+		
+		if (!file_exists(__DIR__.'/../../../../mouf/Mouf.php') || !file_exists(__DIR__.'/../../../../config.php')) {
+			continue;
+		}
+		require_once(__DIR__.'/../../../../mouf/Mouf.php');
+		
+		$moufManager = MoufManager::getMoufManager();
+		self::installComponent($target, $this->composer->getConfig(), $moufManager);
 	}
-	
-	/**
-	 * {@inheritDoc}
-	 */
-	public function install(InstalledRepositoryInterface $repo, PackageInterface $package)
-	{
-		parent::install($repo, $package);
-		$this->installUpdate($repo, $package);
-	}
-	
+		
 	/**
 	 * {@inheritDoc}
 	 */
@@ -40,32 +38,19 @@ class ComponentInstaller extends LibraryInstaller
 	{
 		parent::uninstall($repo, $package);
 		
-		if (!file_exists(__DIR__.'/../../../../mouf/Mouf.php')) {
+		if (!file_exists(__DIR__.'/../../../../mouf/Mouf.php') || !file_exists(__DIR__.'/../../../../config.php')) {
 			continue;
 		}
 		require_once(__DIR__.'/../../../../mouf/Mouf.php');
 		
 		$moufManager = MoufManager::getMoufManager();
 		
-		echo 'CHECKING FOR '."component.".$package->getName();
 		if ($moufManager->has("component.".$package->getName())) {
-			echo 'WE REMOVE '."component.".$package->getName();
 			$moufManager->removeComponent("component.".$package->getName());
 		}
 		$moufManager->rewriteMouf();
-		echo 'FINISHED REWRITE '."component.".$package->getName();
 	}
 	
-	protected function installUpdate(InstalledRepositoryInterface $repo, PackageInterface $package) {
-		if (!file_exists(__DIR__.'/../../../../mouf/Mouf.php')) {
-			continue;
-		}
-		require_once(__DIR__.'/../../../../mouf/Mouf.php');
-		
-		$moufManager = MoufManager::getMoufManager();
-		self::installComponent($package, $this->composer->getConfig(), $moufManager);
-	}
-
     /**
      * {@inheritDoc}
      */
