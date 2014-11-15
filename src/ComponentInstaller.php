@@ -85,10 +85,15 @@ class ComponentInstaller extends LibraryInstaller
     		return;
     	}
     	
-    	$packageName = explode('/', $package->getName())[1];
+    	$extra = $package->getExtra();
+    	
+    	if (isset($extra['component']['name'])) {
+    		$packageName = $extra['component']['name'];
+    	} else {
+    		$packageName = explode('/', $package->getName())[1];
+    	}
     		
-    	if (!$moufManager->has("component.".$package->getName())) {
-    		$extra = $package->getExtra();
+    	if (!$moufManager->has("component.".$packageName)) {
     			
     		$targetDir = $config->get('component-dir');
     		$baseUrl = $config->get('component-baseurl');
