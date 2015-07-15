@@ -79,31 +79,18 @@ class ComponentInstaller extends LibraryInstaller
     	}
     		
     	if (!$moufManager->has("component.".$packageName)) {
-    			
-    		$targetDir = $config->get('component-dir');
-    		$baseUrl = $config->get('component-baseurl');
-    			
-    		if (!$targetDir) {
-    			$targetDir = 'components';
-    		}
-    		if (!$baseUrl) {
-    			$baseUrl = $targetDir;
-    		}
-    			
-    		$targetDir = trim($targetDir,'/\\').'/';
-    		$baseUrl = trim($baseUrl,'/\\').'/';
-    	
+
     		$scripts = [];
     		if (isset($extra['component']['scripts'])) {
-    			$scripts = array_map(function($script) use ($packageName, $baseUrl) {
-    				return $baseUrl.$packageName.'/'.$script;
+    			$scripts = array_map(function($script) use ($package) {
+    				return "vendor/".$package->getName().'/'.$script;
     			}, $extra['component']['scripts']);
     		}
     	
     		$css = [];
     		if (isset($extra['component']['styles'])) {
-    			$css = array_map(function($script) use ($packageName, $baseUrl) {
-    				return $baseUrl.$packageName.'/'.$script;
+    			$css = array_map(function($script) use ($package) {
+    				return "vendor/".$package->getName().'/'.$script;
     			}, $extra['component']['styles']);
     		}
     	
