@@ -23,7 +23,7 @@ class ComponentInstaller extends LibraryInstaller
 		parent::update($repo, $initial, $target);
 		
 		if (!file_exists(__DIR__.'/../../../../mouf/Mouf.php') || !file_exists(__DIR__.'/../../../../config.php')) {
-			continue;
+			return;
 		}
 		require_once(__DIR__.'/../../../../mouf/Mouf.php');
 		
@@ -39,7 +39,7 @@ class ComponentInstaller extends LibraryInstaller
 		parent::uninstall($repo, $package);
 		
 		if (!file_exists(__DIR__.'/../../../../mouf/Mouf.php') || !file_exists(__DIR__.'/../../../../config.php')) {
-			continue;
+			return;
 		}
 		require_once(__DIR__.'/../../../../mouf/Mouf.php');
 		
