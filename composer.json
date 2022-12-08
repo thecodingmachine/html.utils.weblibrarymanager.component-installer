@@ -22,8 +22,8 @@
 		}
 	],
 	"require" : {
-		"php" : ">=5.3.0",
-		"composer-plugin-api" : "^1.0"
+		"php" : "^8",
+		"composer-plugin-api" : "^2.3"
 	},
 	"autoload" : {
 		"psr-4" : {
@@ -32,5 +32,16 @@
 	},
 	"extra" : {
 		"class" : "Mouf\\Html\\Utils\\WebLibraryManager\\ComponentInstaller\\ComponentInstallerPlugin"
+	},
+	"require-dev": {
+		"composer/composer": "^2.4",
+		"mouf/mouf": "^2.0",
+		"mouf/html.utils.weblibrarymanager": "^4.0"
+	},
+	"config": {
+		"allow-plugins": {
+			"mouf/mouf-installer": true,
+			"mindplay/composer-locator": true
+		}
 	}
 }
